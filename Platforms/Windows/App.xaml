@@ -1,0 +1,8 @@
+﻿<maui:MauiWinUIApplication
+    x:Class="CopyPath___Modular_MAUI_.WinUI.App"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:maui="using:Microsoft.Maui"
+    xmlns:local="using:CopyPath___Modular_MAUI_.WinUI">
+
+</maui:MauiWinUIApplication>

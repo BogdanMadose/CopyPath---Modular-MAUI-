@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<FileTransferOptions>
+	<Option>
+		<Name>Test 1</Name>
+		<Source>D:\CopySourceTest\</Source>
+		<Destination>D:\CopyDestinationTest\</Destination>
+	</Option>
+	<Option>
+		<Name>Test 2</Name>
+		<Source>D:\CopySourceTest2\</Source>
+		<Destination>D:\CopyDestinationTest2\</Destination>
+	</Option>
+</FileTransferOptions>

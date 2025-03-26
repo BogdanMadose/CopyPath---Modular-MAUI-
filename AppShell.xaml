@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Shell
+    x:Class="CopyPath___Modular_MAUI_.AppShell"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:local="clr-namespace:CopyPath___Modular_MAUI_"
+    xmlns:views="clr-namespace:CopyPath___Modular_MAUI_.Views"
+    Shell.FlyoutBehavior="Flyout"
+    Title="File Transfer Application">
+
+    <FlyoutItem Title="File Transfer" Icon="transfer_files.png">
+        <ShellContent ContentTemplate="{DataTemplate local:MainPage}" />
+    </FlyoutItem>
+    <FlyoutItem Title="Settings" Icon="settings.png">
+        <ShellContent ContentTemplate="{DataTemplate views:SettingsPage}" />
+    </FlyoutItem>
+
+</Shell>
