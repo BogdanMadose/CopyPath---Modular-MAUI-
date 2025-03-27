@@ -1,20 +1,21 @@
 ﻿using CopyPath___Modular_MAUI_.Helpers;
-using static CopyPath___Modular_MAUI_.Helpers.FileHelper;
+using CopyPath___Modular_MAUI_.Models;
 
 namespace CopyPath___Modular_MAUI_.Services
 {
+#pragma warning disable CS8604 // Possible null reference argument.
     public class FileTransferService
     {
-        public async Task TransferFilesAsync(FileTransferOptions options,
+        public static async Task TransferFilesAsync(FileTransferOptions? options,
                                            CancellationToken cancellationToken,
-                                           IProgress<(double Percentage, int Processed, int Total)> progress = null)
+                                           IProgress<(double Percentage, int Processed, int Total)>? progress = null)
         {
             FileHelper.ResetConflictResolution();
 
             try
             {
                 // 1. Get all files with full paths
-                var allFiles = Directory.EnumerateFiles(options.Source, "*", SearchOption.AllDirectories).ToList();
+                var allFiles = Directory.EnumerateFiles(options?.Source, "*", SearchOption.AllDirectories).ToList();
                 int totalFiles = allFiles.Count;
                 int processedFiles = 0;
 
@@ -34,10 +35,7 @@ namespace CopyPath___Modular_MAUI_.Services
                 // 4. Resolve conflicts in bulk
                 var resolution = await FileHelper.HandleConflictsAsync(potentialConflicts);
 
-                if (resolution.Canceled)
-                {
-                    throw new OperationCanceledException();
-                }
+                if (resolution.Canceled) throw new OperationCanceledException();
 
                 // 5. Process all files
                 foreach (var sourceFile in allFiles)
@@ -54,18 +52,15 @@ namespace CopyPath___Modular_MAUI_.Services
                     if (resolution.ApplyToAll || !potentialConflicts.Contains(destFile))
                     {
                         if (resolution.ShouldProceed || !potentialConflicts.Contains(destFile))
-                        {
                             await Task.Run(() => File.Copy(sourceFile, destFile, true), cancellationToken);
-                        }
+                        else throw new OperationCanceledException("User skipped file transfer.");
                     }
                     else if (potentialConflicts.Contains(destFile) && !resolution.ApplyToAll)
                     {
                         // Individual file decision needed
-                        var fileResolution = await FileHelper.HandleConflictsAsync(new List<string> { destFile });
+                        var fileResolution = await FileHelper.HandleConflictsAsync([destFile]);
                         if (fileResolution.ShouldProceed)
-                        {
                             await Task.Run(() => File.Copy(sourceFile, destFile, true), cancellationToken);
-                        }
                     }
 
                     // Update progress
@@ -114,7 +109,7 @@ namespace CopyPath___Modular_MAUI_.Services
             var potentialConflicts = files.Select(f => Path.Combine(destDir, f.Name)).ToList();
             var conflicts = await FileHelper.FindConflictsAsync(potentialConflicts);
 
-            if (!conflicts.Any())
+            if (conflicts.Count == 0)
             {
                 // Fast path: no conflicts, copy all
                 await ParallelForEachAsync(files, async file =>
@@ -126,33 +121,29 @@ namespace CopyPath___Modular_MAUI_.Services
             }
 
             var resolution = await FileHelper.HandleConflictsAsync(conflicts);
-            if (resolution.Canceled) throw new OperationCanceledException("User canceled file transfer");
+
+            if (resolution.Canceled) throw new OperationCanceledException("User canceled file transfer.");
 
             foreach (var file in files)
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 var destPath = Path.Combine(destDir, file.Name);
 
-                if (ShouldCopyFile(resolution, destPath, conflicts))
-                {
-                    await CopyFileAsync(file, destPath, cancellationToken);
-                }
+                if (ShouldCopyFile(resolution, destPath, conflicts)) await CopyFileAsync(file, destPath, cancellationToken);
             }
         }
 
-        private bool ShouldCopyFile(ConflictResolution resolution, string destPath, List<string> conflicts)
+        private static bool ShouldCopyFile(ConflictResolution resolution, string destPath, List<string> conflicts)
         {
             if (resolution.ApplyToAll) return resolution.ShouldProceed;
             if (!conflicts.Contains(destPath)) return true;
             return resolution.ShouldProceed;
         }
 
-        private async Task CopyFileAsync(FileInfo file, string destPath, CancellationToken ct)
-        {
-            await Task.Run(() => file.CopyTo(destPath, overwrite: true), ct);
-        }
+        private static async Task CopyFileAsync(FileInfo file, string destPath, CancellationToken ct)
+            => await Task.Run(() => file.CopyTo(destPath, overwrite: true), ct);
 
-        private async Task ParallelForEachAsync<T>(IEnumerable<T> items, Func<T, Task> action)
+        private static async Task ParallelForEachAsync<T>(IEnumerable<T> items, Func<T, Task> action)
         {
             var tasks = items.Select(action);
             await Task.WhenAll(tasks);
