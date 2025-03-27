@@ -2,9 +2,10 @@ using CopyPath___Modular_MAUI_.Helpers;
 
 namespace CopyPath___Modular_MAUI_.Views;
 
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
 public partial class ConflictDialog : ContentPage
 {
-    private TaskCompletionSource<string> _taskCompletionSource;
+    public TaskCompletionSource<string>? _taskCompletionSource;
     private readonly List<string> _conflictingFiles;
 
     public ConflictDialog(List<string> conflictingFiles)
@@ -17,9 +18,7 @@ public partial class ConflictDialog : ContentPage
     private void UpdateConflictMessage()
     {
         if (_conflictingFiles.Count == 1)
-        {
             ConflictMessage.Text = $"File '{Path.GetFileName(_conflictingFiles[0])}' already exists.";
-        }
         else
         {
             var fileList = string.Join("\n", _conflictingFiles.Select(f => $"• {Path.GetFileName(f)}"));
@@ -48,7 +47,6 @@ public partial class ConflictDialog : ContentPage
                 _taskCompletionSource.TrySetResult(result);
                 await MainThread.InvokeOnMainThreadAsync(async () =>
                 {
-                    // 3. Use while-loop for reliable closure
                     while (Navigation.ModalStack.Contains(this))
                     {
                         await Navigation.PopModalAsync();
@@ -65,10 +63,7 @@ public partial class ConflictDialog : ContentPage
     protected override void OnDisappearing()
     {
         // Only cancel if not already completed
-        if (_taskCompletionSource?.Task.IsCompleted == false)
-        {
-            _taskCompletionSource.TrySetCanceled();
-        }
+        if (_taskCompletionSource?.Task.IsCompleted == false) _taskCompletionSource.TrySetCanceled();
         base.OnDisappearing();
     }
 
