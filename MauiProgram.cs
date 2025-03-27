@@ -1,4 +1,6 @@
-﻿using CopyPath___Modular_MAUI_.Services;
+﻿using CommunityToolkit.Maui;
+using CopyPath___Modular_MAUI_.Services;
+using CopyPath___Modular_MAUI_.ViewModels;
 using Microsoft.Extensions.Logging;
 
 namespace CopyPath___Modular_MAUI_
@@ -10,6 +12,7 @@ namespace CopyPath___Modular_MAUI_
             var builder = MauiApp.CreateBuilder();
             builder
                 .UseMauiApp<App>()
+                .UseMauiCommunityToolkit()
                 .ConfigureFonts(fonts =>
                 {
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
@@ -20,6 +23,7 @@ namespace CopyPath___Modular_MAUI_
             builder.Logging.AddDebug();
 #endif
             builder.Services.AddSingleton<FileTransferService>();
+            builder.Services.AddSingleton<SettingsPageViewModel>();
             builder.Services.AddSingleton<MainPage>();
             return builder.Build();
         }
