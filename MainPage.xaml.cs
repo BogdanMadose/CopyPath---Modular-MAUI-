@@ -1,9 +1,13 @@
 ﻿using CopyPath___Modular_MAUI_.Helpers;
+using CopyPath___Modular_MAUI_.Models;
 using CopyPath___Modular_MAUI_.Services;
 using System.Collections.ObjectModel;
 
 namespace CopyPath___Modular_MAUI_
 {
+#pragma warning disable CS8622 // Nullability of reference types in type of parameter doesn't match the target delegate (possibly because of nullability attributes).
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0044:Add readonly modifier", Justification = "<Pending>")]
     public partial class MainPage : ContentPage
     {
         private readonly FileTransferService _fileTransferService;
@@ -11,14 +15,14 @@ namespace CopyPath___Modular_MAUI_
         private DateTime _transferStartTime;
         private int _totalFiles;
         private int _processedFiles;
-        private ViewCell _lastSelectedCell;
+        private ViewCell? _lastSelectedCell;
         public ObservableCollection<FileTransferOptions> Options { get; set; }
 
         public MainPage(FileTransferService fileTransferService)
         {
             InitializeComponent();
             _fileTransferService = fileTransferService;
-            Options = new ObservableCollection<FileTransferOptions>(XmlHelper.ReadOptions());
+            Options = [.. XmlHelper.ReadOptions()];
             BindingContext = this;
             this.Appearing += OnPageAppearing;
         }
@@ -60,7 +64,7 @@ namespace CopyPath___Modular_MAUI_
 
             try
             {
-                await _fileTransferService.TransferFilesAsync(selectedOption, cancellationTokenSource.Token, progress);
+                await FileTransferService.TransferFilesAsync(selectedOption, cancellationTokenSource.Token, progress);
                 ProgressLabel.Text = "Transfer complete!";
                 await DisplayAlert("Success", "File transfer completed successfully!", "OK");
             }
@@ -121,15 +125,10 @@ namespace CopyPath___Modular_MAUI_
         private void OptionsListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             foreach (var item in e.PreviousSelection.OfType<FileTransferOptions>())
-            {
                 item.IsSelected = false;
-            }
 
-            // Set new selection
             foreach (var item in e.CurrentSelection.OfType<FileTransferOptions>())
-            {
                 item.IsSelected = true;
-            }
         }
     }
 }
