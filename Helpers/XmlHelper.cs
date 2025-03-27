@@ -1,8 +1,10 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CopyPath___Modular_MAUI_.Models;
 using System.Xml.Linq;
 
 namespace CopyPath___Modular_MAUI_.Helpers
 {
+#pragma warning disable CS8601 // Possible null reference assignment.
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
     public static class XmlHelper
     {
         private static readonly string XmlFilePath = "options.xml";
@@ -42,15 +44,5 @@ namespace CopyPath___Modular_MAUI_.Helpers
             );
             doc.Save(XmlFilePath);
         }
-    }
-
-    public partial class FileTransferOptions : ObservableObject
-    {
-        [ObservableProperty]
-        private bool _isSelected;
-
-        public string Name { get; set; }
-        public string Source { get; set; }
-        public string Destination { get; set; }
     }
 }

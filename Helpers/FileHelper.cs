@@ -1,21 +1,24 @@
-﻿using CopyPath___Modular_MAUI_.Views;
+﻿using CopyPath___Modular_MAUI_.Models;
+using CopyPath___Modular_MAUI_.Views;
 
 namespace CopyPath___Modular_MAUI_.Helpers
 {
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
     public static class FileHelper
     {
         private static bool _skipAllFiles;
         private static bool _overwriteAllFiles;
 
-        public static async Task<List<string>> FindConflictsAsync(List<string> filePaths) => filePaths.Where(File.Exists).ToList();
+        public static Task<List<string>> FindConflictsAsync(List<string> filePaths)
+            => Task.FromResult(filePaths.Where(File.Exists).ToList());
 
         public static async Task<ConflictResolution> HandleConflictsAsync(List<string> conflictingFiles)
         {
-            if (!conflictingFiles.Any())
+            if (conflictingFiles.Count == 0)
                 return new ConflictResolution { ShouldProceed = true };
 
             var conflictDialog = new ConflictDialog(conflictingFiles);
-            await Application.Current.MainPage.Navigation.PushModalAsync(conflictDialog);
+            await Application.Current.Windows[0].Navigation.PushModalAsync(conflictDialog);
             var result = await conflictDialog.ShowAsync();
 
             return new ConflictResolution
@@ -30,13 +33,6 @@ namespace CopyPath___Modular_MAUI_.Helpers
         {
             _skipAllFiles = false;
             _overwriteAllFiles = false;
-        }
-
-        public class ConflictResolution
-        {
-            public bool ShouldProceed { get; set; }  // true=overwrite, false=skip
-            public bool ApplyToAll { get; set; }     // whether to apply to all files
-            public bool Canceled { get; set; }       // whether operation was canceled
         }
     }
 }
